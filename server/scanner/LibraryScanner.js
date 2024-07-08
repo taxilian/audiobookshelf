@@ -26,7 +26,7 @@ class LibraryScanner {
   }
 
   /**
-   * @param {string} libraryId 
+   * @param {string} libraryId
    * @returns {boolean}
    */
   isLibraryScanning(libraryId) {
@@ -34,8 +34,8 @@ class LibraryScanner {
   }
 
   /**
-   * 
-   * @param {string} libraryId 
+   *
+   * @param {string} libraryId
    */
   setCancelLibraryScan(libraryId) {
     const libraryScanning = this.librariesScanning.find(ls => ls.id === libraryId)
@@ -44,9 +44,9 @@ class LibraryScanner {
   }
 
   /**
-   * 
-   * @param {import('../objects/Library')} library 
-   * @param {boolean} [forceRescan] 
+   *
+   * @param {import('../objects/Library')} library
+   * @param {boolean} [forceRescan]
    */
   async scan(library, forceRescan = false) {
     if (this.isLibraryScanning(library.id)) {
@@ -116,8 +116,8 @@ class LibraryScanner {
   }
 
   /**
-   * 
-   * @param {import('./LibraryScan')} libraryScan 
+   *
+   * @param {import('./LibraryScan')} libraryScan
    * @param {boolean} forceRescan
    * @returns {Promise<boolean>} true if scan canceled
    */
@@ -272,8 +272,8 @@ class LibraryScanner {
 
   /**
    * Get scan data for library folder
-   * @param {import('../objects/Library')} library 
-   * @param {import('../objects/Folder')} folder 
+   * @param {import('../objects/Library')} library
+   * @param {import('../objects/Folder')} folder
    * @returns {LibraryItemScanData[]}
    */
   async scanFolder(library, folder) {
@@ -341,7 +341,7 @@ class LibraryScanner {
 
   /**
    * Scan files changed from Watcher
-   * @param {import('../Watcher').PendingFileUpdate[]} fileUpdates 
+   * @param {import('../Watcher').PendingFileUpdate[]} fileUpdates
    * @param {Task} pendingTask
    */
   async scanFilesChanged(fileUpdates, pendingTask) {
@@ -432,7 +432,7 @@ class LibraryScanner {
 
   /**
    * Group array of PendingFileUpdate from Watcher by folder
-   * @param {import('../Watcher').PendingFileUpdate[]} fileUpdates 
+   * @param {import('../Watcher').PendingFileUpdate[]} fileUpdates
    * @returns {Record<string,{libraryId:string, folderId:string, fileUpdates:import('../Watcher').PendingFileUpdate[]}>}
    */
   getFileUpdatesGrouped(fileUpdates) {
@@ -453,9 +453,9 @@ class LibraryScanner {
 
   /**
    * Scan grouped paths for library folder coming from Watcher
-   * @param {import('../models/Library')} library 
-   * @param {import('../models/LibraryFolder')} folder 
-   * @param {Record<string, string[]>} fileUpdateGroup 
+   * @param {import('../models/Library')} library
+   * @param {import('../models/LibraryFolder')} folder
+   * @param {Record<string, string[]>} fileUpdateGroup
    * @returns {Promise<Record<string,number>>}
    */
   async scanFolderUpdates(library, folder, fileUpdateGroup) {

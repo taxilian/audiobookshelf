@@ -176,7 +176,7 @@ class Author extends Model {
           defaultValue: DataTypes.UUIDV4,
           primaryKey: true
         },
-        name: DataTypes.STRING,
+        name: DataTypes.CITEXT,
         lastFirst: DataTypes.STRING,
         asin: DataTypes.STRING,
         description: DataTypes.TEXT,
@@ -190,7 +190,6 @@ class Author extends Model {
             fields: [
               {
                 name: 'name',
-                collate: 'NOCASE'
               }
             ]
           },

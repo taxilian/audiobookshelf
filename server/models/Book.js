@@ -270,7 +270,7 @@ class Book extends Model {
           defaultValue: DataTypes.UUIDV4,
           primaryKey: true
         },
-        title: DataTypes.STRING,
+        title: DataTypes.CITEXT,
         titleIgnorePrefix: DataTypes.STRING,
         subtitle: DataTypes.STRING,
         publishedYear: DataTypes.STRING,
@@ -300,7 +300,6 @@ class Book extends Model {
             fields: [
               {
                 name: 'title',
-                collate: 'NOCASE'
               }
             ]
           },

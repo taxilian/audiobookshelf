@@ -11,7 +11,8 @@ const Auth = require('./Auth')
 class Database {
   constructor() {
     this.sequelize = null
-    this.dbPath = null
+    /** @type { import('sequelize').Options } */
+    this.dbConfig = null
     this.isNew = false // New absdatabase.sqlite created
     this.hasRootUser = false // Used to show initialization page in web ui
 
@@ -147,19 +148,60 @@ class Database {
    * @returns {boolean}
    */
   async checkHasDb() {
-    if (!(await fs.pathExists(this.dbPath))) {
-      Logger.info(`[Database] absdatabase.sqlite not found at ${this.dbPath}`)
+    if (this.dbConfig.dialect !== 'sqlite') return true
+    if (!(await fs.pathExists(this.dbConfig.storage))) {
+      Logger.info(`[Database] absdatabase.sqlite not found at ${this.dbConfig.storage}`)
       return false
     }
     return true
   }
+
+
+  getDatabaseConfiguration() {
+    /** @type {'sqlite' | 'mysql' | 'pgsql'} */
+    const type = process.env.DB_TYPE || 'sqlite'
+    switch (type) {
+      default:
+      case 'sqlite':
+        const dbPath = Path.join(global.ConfigPath, 'absdatabase.sqlite')
+        this.dbConfig = {
+          dialect: 'sqlite',
+          storage: dbPath,
+          transactionType: 'IMMEDIATE'
+        }
+        break
+      case 'mysql':
+        this.dbConfig = {
+          dialect: 'mysql',
+          database: process.env.DB_NAME || 'audiobookshelf',
+          user: process.env.DB_USER || 'myuser',
+          password: process.env.DB_PASS || 'mypass',
+          host: process.env.DB_HOST || 'localhost',
+          port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306,
+        }
+        break
+      case 'pgsql':
+        this.dbConfig = {
+          dialect: 'postgres',
+          database: process.env.DB_NAME || 'audiobookshelf',
+          user: process.env.DB_USER || 'myuser',
+          password: process.env.DB_PASS || 'mypass',
+          host: process.env.DB_HOST || 'localhost',
+          port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
+          ssl: process.env.DB_SSL === 'true',
+        }
+        break
+    }
+    return this.dbConfig
+  }
+
 
   /**
    * Connect to db, build models and run migrations
    * @param {boolean} [force=false] Used for testing, drops & re-creates all tables
    */
   async init(force = false) {
-    this.dbPath = Path.join(global.ConfigPath, 'absdatabase.sqlite')
+    this.getDatabaseConfiguration()
 
     // First check if this is a new database
     this.isNew = !(await this.checkHasDb()) || force
@@ -174,12 +216,25 @@ class Database {
     await this.loadData()
   }
 
+  dbTargetSummary() {
+    switch (this.dbConfig.dialect) {
+      case 'sqlite':
+        return `sqlite at "${this.dbConfig.storage}"`
+      case 'mysql':
+        return `mysql at "${this.dbConfig.host}:${this.dbConfig.port}/${this.dbConfig.database}"`
+      case 'postgres':
+        return `postgres at "${this.dbConfig.host}:${this.dbConfig.port}/${this.dbConfig.database}"`
+      default:
+        return `unknown type`
+    }
+  }
+
   /**
    * Connect to db
    * @returns {boolean}
    */
   async connect() {
-    Logger.info(`[Database] Initializing db at "${this.dbPath}"`)
+    Logger.info(`[Database] Initializing db "${this.dbTargetSummary()}"`)
 
     let logging = false
     let benchmark = false
@@ -195,11 +250,9 @@ class Database {
     }
 
     this.sequelize = new Sequelize({
-      dialect: 'sqlite',
-      storage: this.dbPath,
+      ...this.dbConfig,
       logging: logging,
       benchmark: benchmark,
-      transactionType: 'IMMEDIATE'
     })
 
     // Helper function

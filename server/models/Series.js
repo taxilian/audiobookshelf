@@ -128,7 +128,7 @@ class Series extends Model {
           defaultValue: DataTypes.UUIDV4,
           primaryKey: true
         },
-        name: DataTypes.STRING,
+        name: DataTypes.CITEXT,
         nameIgnorePrefix: DataTypes.STRING,
         description: DataTypes.TEXT
       },
@@ -140,7 +140,6 @@ class Series extends Model {
             fields: [
               {
                 name: 'name',
-                collate: 'NOCASE'
               }
             ]
           },
